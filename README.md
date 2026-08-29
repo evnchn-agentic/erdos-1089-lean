@@ -77,9 +77,12 @@ point during development `P1089.lean` had no sorry warnings while `gD_limit` sti
 This is a **transcription**, not original mathematics, and it was produced with heavy AI assistance.
 Specifically:
 
-- The mathematical content comes from published/attributed sources: the sandwich and its two bounds
-  are the literature results named above. The lower bound is credited on erdosproblems.com to
-  Aletheia (arXiv:2601.22401 §4.4), an AI system; the upper bound is Bannai–Bannai–Stanton 1983.
+- The mathematical content comes from published, citable sources. The upper bound is
+  Bannai–Bannai–Stanton 1983 (Combinatorica, 147–152). The lower bound is credited on
+  erdosproblems.com to *Aletheia*, from **T. Feng et al., "Semi-Autonomous Mathematics Discovery
+  with Gemini: A Case Study on the Erdős Problems", [arXiv:2601.22401](https://arxiv.org/abs/2601.22401)
+  (2026)** — so the informal proof being transcribed here is itself an AI-discovered result, from a
+  preprint, not an unattributed model output.
 - The Lean formalisation was written by Claude (Anthropic) acting as a coding agent, across several
   sessions, under human direction. Individual proof steps were reviewed and iterated against the Lean
   kernel, which is the only oracle that matters for the sorry-freeness claim.
