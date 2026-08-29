@@ -3,6 +3,13 @@
 A Lean 4 proof of **Erdős problem [#1089](https://www.erdosproblems.com/1089)**, and of
 **[#502](https://www.erdosproblems.com/502)** as a free corollary.
 
+> **This is not the first formalisation of #1089, and does not claim to be.**
+> [`plby/lean-proofs`](https://github.com/plby/lean-proofs) has had one since **2026-08-17**, eleven
+> days before this one was completed, arrived at independently. Theirs is the stronger result. See
+> [Prior and independent work](#prior-and-independent-work) — and the machine-checked comparison in
+> [`cross-check/`](cross-check/), which is the part of this repository most likely to be useful to
+> anyone else.
+
 ```
 #print axioms ErdosProofs.P1089.gDSpec_limit
   -- [propext, Classical.choice, Quot.sound]
@@ -55,6 +62,50 @@ Two conventions, documented rather than hidden:
   `gDSpec d 0 = 0` while `gD d 0 = 2`.
 - **`d = 0` is degenerate.** ℝ⁰ is a single point, so no set of size `≥ 2` exists and the forcing
   condition is vacuous; both sides collapse to `2`. The theorem is true there but verifies nothing.
+
+## Prior and independent work
+
+[`plby/lean-proofs`](https://github.com/plby/lean-proofs) contains
+`src/latest/ErdosProblems/Erdos1089.lean`, added **2026-08-17**. It is sorry-free, uses no
+`native_decide` and adds no axioms, and its `erdos_1089` is **stronger than the theorem here**: it
+proves the full literature sandwich
+
+```
+C(d+1, n-1) + 1  ≤  g_d(n)  ≤  C(d+n-1, n-1) + 1
+```
+
+alongside the limit, whereas this repository proves the limit with a *weaker* lower bound,
+`C(d, n-1) + 1`. Both give the same limit, so the headline is unaffected — but only theirs is the
+sandwich erdosproblems.com states. The missing ingredient here is an affine isometry from the sum-`s`
+hyperplane of `ℝ^(d+1)` down to `ℝ^d`, documented in the `MD_lower` docstring as a deliberate v0
+shortcut; they built it (`hyperplaneIsometry`).
+
+Erdős #502 is likewise already registered upstream: `FormalConjectures/ErdosProblems/502.lean` is
+`@[category research solved]` with a `formal_proof` link to the same author's `Erdos502.lean`, by the
+same Petrov–Pohoata route this repository takes.
+
+### So what is this repository for
+
+An **independent second formalisation**, and a machine-checked comparison of the two.
+[`cross-check/run.sh`](cross-check/run.sh) fetches their file at runtime, type-checks it alongside
+this one, and proves:
+
+```lean
+theorem g_eq_gDSpec (d n : ℕ) : Erdos1089.g d n = ErdosProofs.P1089.gDSpec d n
+```
+
+The two definitions were written independently and look nothing alike — theirs over `Finset` with
+`dist` and `Finset.card`, this one over `Set` with `‖x - y‖` and `Set.ncard`. They are the same
+function. Each side's limit theorem is then derived from the other's proof, in both directions.
+
+That is worth something a single formalisation cannot provide: for a statement nobody has yet
+registered upstream, two independent transcriptions of the same informal source, by different model
+lineages, provably agreeing on what the statement *means*. Misformalisation is the failure mode
+formal statements are most exposed to, and agreement between independent renderings is evidence
+against it.
+
+Their repository carries **no LICENSE file**, so its content is all-rights-reserved. Nothing of
+theirs is vendored here; the cross-check fetches it at run time.
 
 ## Verifying it yourself
 
