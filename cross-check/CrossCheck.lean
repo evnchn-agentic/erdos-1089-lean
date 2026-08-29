@@ -3,9 +3,22 @@ Cross-check of this repository's Erdős #1089 formalisation against the independ
 `plby/lean-proofs`.
 
 NOT SELF-CONTAINED, and deliberately so: plby/lean-proofs carries NO LICENSE file, so its
-content is all-rights-reserved and is not vendored here. To run this, build the combined file
-yourself with `./build.sh`, which fetches their source at runtime and concatenates it with the
-`CrossCheck` namespace below.
+content is all-rights-reserved and is not vendored here. This file is only the second half of the
+comparison — on its own it will not type-check, because the `Erdos1089` namespace it refers to is
+theirs.
+
+To run it, from the repository root:
+
+    ./cross-check/run.sh
+
+which fetches their source at run time, concatenates it with the `CrossCheck` namespace below, and
+type-checks the pair.
+
+What is proved here:
+  * `g_eq_gDSpec`          — their `g` and our `gDSpec` are the same function
+  * `their_limit_from_ours`,
+    `our_limit_from_theirs` — each side's headline follows from the other's proof
+  * `their_lower_bound_is_stronger` — where the two diverge, and in whose favour
 -/
 
 -- ─────────────────────── CROSS-CHECK ───────────────────────
