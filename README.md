@@ -67,18 +67,17 @@ Two conventions, documented rather than hidden:
 
 [`plby/lean-proofs`](https://github.com/plby/lean-proofs) contains
 `src/latest/ErdosProblems/Erdos1089.lean`, added **2026-08-17**. It is sorry-free, uses no
-`native_decide` and adds no axioms, and its `erdos_1089` is **stronger than the theorem here**: it
-proves the full literature sandwich
+`native_decide` and adds no axioms, and its `erdos_1089` proves the full literature sandwich
 
 ```
 C(d+1, n-1) + 1  ≤  g_d(n)  ≤  C(d+n-1, n-1) + 1
 ```
 
-alongside the limit, whereas this repository proves the limit with a *weaker* lower bound,
-`C(d, n-1) + 1`. Both give the same limit, so the headline is unaffected — but only theirs is the
-sandwich erdosproblems.com states. The missing ingredient here is an affine isometry from the sum-`s`
-hyperplane of `ℝ^(d+1)` down to `ℝ^d`, documented in the `MD_lower` docstring as a deliberate v0
-shortcut; they built it (`hyperplaneIsometry`).
+alongside the limit. Until 2026-10-27 this repository proved only the weaker lower bound
+`C(d, n-1) + 1`; it now proves the same sandwich (`gDSpec_sandwich`), by mapping the sum-`s`
+hyperplane of `ℝ^(d+1)` isometrically onto `ℝ^d` (`hyperplaneToEucl`). That map was written without
+reading theirs (`hyperplaneIsometry`); only their headline statement was consulted, to state the
+cross-check.
 
 Erdős #502 is likewise already registered upstream: `FormalConjectures/ErdosProblems/502.lean` is
 `@[category research solved]` with a `formal_proof` link to the same author's `Erdos502.lean`, by the
@@ -96,7 +95,8 @@ theorem g_eq_gDSpec (d n : ℕ) : Erdos1089.g d n = ErdosProofs.P1089.gDSpec d n
 
 The two definitions were written independently and look nothing alike — theirs over `Finset` with
 `dist` and `Finset.card`, this one over `Set` with `‖x - y‖` and `Set.ncard`. They are the same
-function. Each side's limit theorem is then derived from the other's proof, in both directions.
+function. Each side's limit theorem is then derived from the other's proof, in both directions, and
+their whole `erdos_1089`, sandwich included, is derived from this one (`their_headline_from_ours`).
 
 That is worth something a single formalisation cannot provide: for a statement nobody has yet
 registered upstream, two independent transcriptions of the same informal source, by different model
