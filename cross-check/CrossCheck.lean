@@ -18,7 +18,7 @@ What is proved here:
   * `g_eq_gDSpec`          — their `g` and our `gDSpec` are the same function
   * `their_limit_from_ours`,
     `our_limit_from_theirs` — each side's headline follows from the other's proof
-  * `their_lower_bound_is_stronger` — where the two diverge, and in whose favour
+  * `their_headline_from_ours` — their full `erdos_1089`, sandwich included, from our proof
 -/
 
 -- ─────────────────────── CROSS-CHECK ───────────────────────
@@ -76,14 +76,15 @@ theorem our_limit_from_theirs (n : ℕ) (hn : 2 ≤ n) :
   have h := (Erdos1089.erdos_1089 n hn).2
   simpa only [g_eq_gDSpec] using h
 
-/-- **Divergence.** The upper bounds agree, but the lower bounds do not: theirs is
-`C(d+1, n-1) + 1`, which is what erdosproblems.com states; ours is `C(d, n-1) + 1`, which is
-weaker. Both give the same limit, so the headline is unaffected — but only theirs proves the
-literature sandwich. Our own docstring on `MD_lower` names the missing ingredient (an affine
-isometry from the sum-`s` hyperplane of `ℝ^(d+1)` down to `ℝ^d`); they built it, as
-`Erdos1089.hyperplaneIsometry`. -/
-theorem their_lower_bound_is_stronger (d n : ℕ) :
-    Nat.choose d (n - 1) + 1 ≤ Nat.choose (d + 1) (n - 1) + 1 :=
-  Nat.succ_le_succ (Nat.choose_le_choose _ (Nat.le_succ d))
+/-- **Their whole headline, sandwich included, from our proof.** The two lower bounds used
+to differ (ours was `C(d, n-1) + 1`); both now prove `C(d+1, n-1) + 1`, the bound
+erdosproblems.com states, with independently built hyperplane isometries. -/
+theorem their_headline_from_ours (n : ℕ) (hn : 2 ≤ n) :
+    (∀ d, (d + 1).choose (n - 1) + 1 ≤ Erdos1089.g d n ∧
+      Erdos1089.g d n ≤ (d + n - 1).choose (n - 1) + 1) ∧
+    Filter.Tendsto (fun d : ℕ => (Erdos1089.g d n : ℝ) / (d : ℝ) ^ (n - 1))
+      Filter.atTop (nhds ((1 : ℝ) / (n - 1).factorial)) :=
+  ⟨fun d => by simpa only [g_eq_gDSpec] using ErdosProofs.P1089.gDSpec_sandwich d n hn,
+    by simpa only [one_div] using their_limit_from_ours n hn⟩
 
 end CrossCheck

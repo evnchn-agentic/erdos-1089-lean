@@ -423,26 +423,92 @@ theorem MD_lower_dim_plus_one (d s : ℕ) (hs : 1 ≤ s) :
   rw [Set.ncard_coe_finset]
   exact AletheiaSet_card d s
 
-/-- Lower bound on `MD` (without the hyperplane pushdown).
+/-- A map that preserves distances on `P` carries `P`'s distance set over unchanged. -/
+theorem DistanceSet_image {d d' : ℕ} {P : Set (EuclideanSpace ℝ (Fin d))}
+    {f : EuclideanSpace ℝ (Fin d) → EuclideanSpace ℝ (Fin d')}
+    (hf : ∀ x ∈ P, ∀ y ∈ P, ‖f x - f y‖ = ‖x - y‖) :
+    DistanceSet (f '' P) = DistanceSet P := by
+  ext r
+  constructor
+  · rintro ⟨_, ⟨x, hx, rfl⟩, _, ⟨y, hy, rfl⟩, hxy, rfl⟩
+    exact ⟨x, hx, y, hy, fun h => hxy (h ▸ rfl), (hf x hx y hy).symm⟩
+  · rintro ⟨x, hx, y, hy, hxy, rfl⟩
+    refine ⟨f x, ⟨x, hx, rfl⟩, f y, ⟨y, hy, rfl⟩, fun h => hxy ?_, hf x hx y hy⟩
+    rw [← sub_eq_zero, ← norm_eq_zero, ← hf x hx y hy, h, sub_self, norm_zero]
 
-The artifact's tighter bound `(d+1 choose s) ≤ MD d s` requires an affine
-isometry `{x ∈ ℝ^{d+1} | Σ xᵢ = s} ≃ᵢ ℝ^d` to push the AletheiaSet construction
-back to dimension `d`. v0 instead uses the weaker — but limit-equivalent —
-bound `(d choose s) ≤ MD d s`, which follows from `MD_lower_dim_plus_one`
-applied at dimension `d - 1`. The headline `gD_limit` is unchanged because
-`(d choose s) / d^s → 1/s!` and `(d+1 choose s) / d^s → 1/s!` agree. -/
+/-- An `s`-distance set that embeds distance-preservingly into `ℝ^d'` bounds `MD d' s`. -/
+theorem le_MD_of_isometry {d d' s : ℕ} {P : Set (EuclideanSpace ℝ (Fin d))}
+    (hP : IsSDistanceSet d s P)
+    {f : EuclideanSpace ℝ (Fin d) → EuclideanSpace ℝ (Fin d')}
+    (hf : ∀ x ∈ P, ∀ y ∈ P, ‖f x - f y‖ = ‖x - y‖) :
+    P.ncard ≤ MD d' s := by
+  have hinj : Set.InjOn f P := fun x hx y hy h => by
+    rw [← sub_eq_zero, ← norm_eq_zero, ← hf x hx y hy, h, sub_self, norm_zero]
+  apply le_csSup (MD_set_bddAbove d' s)
+  refine ⟨f '' P, ⟨hP.1.image f, ?_⟩, hinj.ncard_image⟩
+  rw [DistanceSet_image hf]
+  exact hP.2
+
+/-- The all-ones vector, normal to the hyperplanes `Σ xᵢ = c`. -/
+noncomputable def onesVec (d : ℕ) : EuclideanSpace ℝ (Fin (d + 1)) := toEucl fun _ => 1
+
+/-- The direction of the hyperplanes `Σ xᵢ = c` is `d`-dimensional. -/
+theorem finrank_onesVec_orthogonal (d : ℕ) :
+    Module.finrank ℝ (ℝ ∙ onesVec d)ᗮ = d := by
+  have h := Submodule.finrank_add_finrank_orthogonal (ℝ ∙ onesVec d)
+  rw [finrank_span_singleton] at h
+  · simp at h; omega
+  · intro h0
+    have := congrFun (congrArg (WithLp.equiv 2 _) h0) 0
+    simp [onesVec, toEucl] at this
+
+/-- Two points with equal coordinate sums differ by a vector orthogonal to `onesVec`. -/
+theorem sub_mem_onesVec_orthogonal {d : ℕ} {x y : EuclideanSpace ℝ (Fin (d + 1))}
+    (h : ∑ i, x i = ∑ i, y i) : x - y ∈ (ℝ ∙ onesVec d)ᗮ := by
+  rw [Submodule.mem_orthogonal_singleton_iff_inner_right]
+  simp only [onesVec, toEucl, PiLp.inner_apply, WithLp.equiv_symm_apply, PiLp.sub_apply,
+    real_inner_eq_re_inner, RCLike.re_to_real]
+  simp [Finset.sum_sub_distrib, h]
+
+/-- Project `ℝ^{d+1}` onto the hyperplane direction and identify it with `ℝ^d`. Restricted to
+any hyperplane `Σ xᵢ = c` this is an isometry. -/
+noncomputable def hyperplaneToEucl (d : ℕ) :
+    EuclideanSpace ℝ (Fin (d + 1)) → EuclideanSpace ℝ (Fin d) := fun x =>
+  ((stdOrthonormalBasis ℝ (ℝ ∙ onesVec d)ᗮ).reindex
+      (finCongr (finrank_onesVec_orthogonal d))).repr
+    ((ℝ ∙ onesVec d)ᗮ.orthogonalProjection x)
+
+theorem hyperplaneToEucl_dist {d : ℕ} {x y : EuclideanSpace ℝ (Fin (d + 1))}
+    (h : ∑ i, x i = ∑ i, y i) :
+    ‖hyperplaneToEucl d x - hyperplaneToEucl d y‖ = ‖x - y‖ := by
+  unfold hyperplaneToEucl
+  rw [← LinearIsometryEquiv.map_sub, LinearIsometryEquiv.norm_map, ← map_sub,
+    ← Submodule.coe_mk (x - y) (sub_mem_onesVec_orthogonal h),
+    Submodule.orthogonalProjection_mem_subspace_eq_self, Submodule.coe_norm]
+
+theorem indicatorVec_sum {d : ℕ} (S : Finset (Fin (d + 1))) :
+    ∑ i, indicatorVec S i = S.card := by
+  simp [indicatorVec, toEucl]
+
+/-- **Lower bound on `MD`, the artifact's full strength.** The Aletheia set lies in the
+hyperplane `Σ xᵢ = s` of `ℝ^{d+1}`, which `hyperplaneToEucl` maps isometrically into `ℝ^d`. -/
 theorem MD_lower (d s : ℕ) (hs : 1 ≤ s) :
-    Nat.choose d s ≤ MD d s := by
-  rcases Nat.eq_zero_or_pos d with rfl | hd
-  · simp [Nat.choose_eq_zero_of_lt hs]
-  · have h := MD_lower_dim_plus_one (d - 1) s hs
-    have hd_eq : (d - 1) + 1 = d := Nat.sub_add_cancel hd
-    rwa [hd_eq] at h
+    Nat.choose (d + 1) s ≤ MD d s := by
+  classical
+  have hsum : ∀ x ∈ ((AletheiaSet d s : Finset _) : Set (EuclideanSpace ℝ (Fin (d + 1)))),
+      ∑ i, x i = s := by
+    intro x hx
+    obtain ⟨S, hS, rfl⟩ := Finset.mem_image.mp (Finset.mem_coe.mp hx)
+    rw [indicatorVec_sum, (Finset.mem_powersetCard.mp hS).2]
+  have h := le_MD_of_isometry (d' := d) (AletheiaSet_isSDistanceSet d s hs)
+    (f := hyperplaneToEucl d) fun x hx y hy =>
+      hyperplaneToEucl_dist ((hsum x hx).trans (hsum y hy).symm)
+  rwa [Set.ncard_coe_finset, AletheiaSet_card] at h
 
 /-! ## 5. Sandwich for `gD` and the limit -/
 
 theorem gD_sandwich (d n : ℕ) (hn : 2 ≤ n) :
-    Nat.choose d (n - 1) + 1 ≤ gD d n
+    Nat.choose (d + 1) (n - 1) + 1 ≤ gD d n
       ∧ gD d n ≤ Nat.choose (d + n - 1) (n - 1) + 1 := by
   have hge : 1 ≤ n - 1 := by omega
   have hadd : d + (n - 1) = d + n - 1 := by omega
@@ -455,6 +521,14 @@ theorem gD_sandwich (d n : ℕ) (hn : 2 ≤ n) :
     have hub := MD_upper d (n - 1)
     rw [gD_eq_MD_add_one, ← hadd]
     omega
+
+/-- The literature sandwich `C(d+1, n-1) + 1 ≤ g_d(n) ≤ C(d+n-1, n-1) + 1`, stated over the
+literal reading `gDSpec`. -/
+theorem gDSpec_sandwich (d n : ℕ) (hn : 2 ≤ n) :
+    Nat.choose (d + 1) (n - 1) + 1 ≤ gDSpec d n
+      ∧ gDSpec d n ≤ Nat.choose (d + n - 1) (n - 1) + 1 := by
+  rw [gDSpec_eq_gD d n (by omega)]
+  exact gD_sandwich d n hn
 
 /-! ### Auxiliary: asymptotics of `Nat.choose (d+c) k`
 
@@ -603,7 +677,8 @@ theorem gD_limit (n : ℕ) (hn : 2 ≤ n) :
   -- Squeeze: lower ≤ gD ≤ upper, both bounds → same limit
   refine tendsto_of_tendsto_of_tendsto_of_le_of_le' hlow_lim hhigh_lim ?_ ?_
   · refine Filter.Eventually.of_forall fun d => ?_
-    have hge : Nat.choose d (n - 1) + 1 ≤ gD d n := (gD_sandwich d n hn).1
+    have hge : Nat.choose d (n - 1) + 1 ≤ gD d n :=
+      (Nat.add_le_add_right (Nat.choose_le_choose _ d.le_succ) 1).trans (gD_sandwich d n hn).1
     by_cases hd : d = 0
     · subst hd
       have hpos : 0 < n - 1 := by omega
