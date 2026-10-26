@@ -5,7 +5,7 @@ A Lean 4 proof of **Erdős problem [#1089](https://www.erdosproblems.com/1089)**
 
 > **This is not the first formalisation of #1089, and does not claim to be.**
 > [`plby/lean-proofs`](https://github.com/plby/lean-proofs) has had one since **2026-08-17**, eleven
-> days before this one was completed, arrived at independently. Theirs is the stronger result. See
+> days before this one was completed, arrived at independently. Both now prove the same bounds and limit. See
 > [Prior and independent work](#prior-and-independent-work) — and the machine-checked comparison in
 > [`cross-check/`](cross-check/), which is the part of this repository most likely to be useful to
 > anyone else.
@@ -75,9 +75,9 @@ C(d+1, n-1) + 1  ≤  g_d(n)  ≤  C(d+n-1, n-1) + 1
 
 alongside the limit. Until 2026-10-27 this repository proved only the weaker lower bound
 `C(d, n-1) + 1`; it now proves the same sandwich (`gDSpec_sandwich`), by mapping the sum-`s`
-hyperplane of `ℝ^(d+1)` isometrically onto `ℝ^d` (`hyperplaneToEucl`). That map was written without
-reading theirs (`hyperplaneIsometry`); only their headline statement was consulted, to state the
-cross-check.
+hyperplane of `ℝ^(d+1)` isometrically onto `ℝ^d` (`hyperplaneToEucl`). By the authoring agent's
+account, only their headline statement was read, to state the cross-check, and not their
+`hyperplaneIsometry`; nothing in the repository can verify that.
 
 Erdős #502 is likewise already registered upstream: `FormalConjectures/ErdosProblems/502.lean` is
 `@[category research solved]` with a `formal_proof` link to the same author's `Erdos502.lean`, by the

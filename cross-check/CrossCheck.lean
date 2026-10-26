@@ -78,7 +78,7 @@ theorem our_limit_from_theirs (n : ℕ) (hn : 2 ≤ n) :
 
 /-- **Their whole headline, sandwich included, from our proof.** The two lower bounds used
 to differ (ours was `C(d, n-1) + 1`); both now prove `C(d+1, n-1) + 1`, the bound
-erdosproblems.com states, with independently built hyperplane isometries. -/
+erdosproblems.com states. -/
 theorem their_headline_from_ours (n : ℕ) (hn : 2 ≤ n) :
     (∀ d, (d + 1).choose (n - 1) + 1 ≤ Erdos1089.g d n ∧
       Erdos1089.g d n ≤ (d + n - 1).choose (n - 1) + 1) ∧
