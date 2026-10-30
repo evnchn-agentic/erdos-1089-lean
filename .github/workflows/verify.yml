@@ -1,0 +1,19 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1'  # weekly: the cross-check fetches plby's file, so re-check it still downloads
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+      - name: Headline theorems use only the standard axioms
+        run: ./cross-check/axioms.sh
+      - name: Cross-check against plby/lean-proofs
+        run: ./cross-check/run.sh

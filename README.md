@@ -86,7 +86,7 @@ same Petrov–Pohoata route this repository takes.
 ### So what is this repository for
 
 An **independent second formalisation**, and a machine-checked comparison of the two.
-[`cross-check/run.sh`](cross-check/run.sh) fetches their file at runtime, type-checks it alongside
+[`cross-check/run.sh`](cross-check/run.sh) fetches their file at runtime, at a pinned commit, type-checks it alongside
 this one, and proves:
 
 ```lean
@@ -115,6 +115,10 @@ lake build                       # expect zero `declaration uses sorry` warnings
 printf 'import ErdosProofs\n#print axioms ErdosProofs.P1089.gDSpec_limit\n' > /tmp/ax.lean
 lake env lean /tmp/ax.lean       # expect [propext, Classical.choice, Quot.sound]
 ```
+
+CI runs the same checks on every push and weekly: `lake build`, then
+[`cross-check/axioms.sh`](cross-check/axioms.sh) (fails if any headline theorem uses an axiom beyond those
+three), then the cross-check.
 
 Mathlib is pinned to `85e6e1b4` in `lakefile.lean`, deliberately: a repository that exists to be
 cited as a verified proof should not stop verifying the day mathlib moves.
