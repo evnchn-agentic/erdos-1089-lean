@@ -117,7 +117,7 @@ lake env lean /tmp/ax.lean       # expect [propext, Classical.choice, Quot.sound
 ```
 
 CI runs the same checks on every push and weekly: `lake build`, then
-[`cross-check/axioms.sh`](cross-check/axioms.sh) (fails if any headline theorem uses an axiom beyond those
+[`cross-check/Axioms.lean`](cross-check/Axioms.lean) (fails if any headline theorem uses an axiom beyond those
 three), then the cross-check.
 
 Mathlib is pinned to `85e6e1b4` in `lakefile.lean`, deliberately: a repository that exists to be
